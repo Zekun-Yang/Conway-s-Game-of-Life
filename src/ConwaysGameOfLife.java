@@ -276,6 +276,13 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
 
         @Override
         public void run() {
+            while(true){
+                alwaysRun();
+            }
+            
+        }
+
+        private void alwaysRun(){
             boolean[][] gameBoard = new boolean[d_gameBoardSize.width+2][d_gameBoardSize.height+2];
             for (Point current : point) {
                 gameBoard[current.x+1][current.y+1] = true;
@@ -311,8 +318,11 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
             repaint();
             try {
                 Thread.sleep(1000/i_movesPerSecond);
-                run();
-            } catch (InterruptedException ex) {}
+                //run(); 
+            } catch (InterruptedException ex) {} 
         }
+
+
+    
     }
 }
