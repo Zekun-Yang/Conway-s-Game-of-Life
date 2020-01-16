@@ -3,6 +3,8 @@ import java.awt.event.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javax.swing.*;
 
 /**
@@ -166,7 +168,8 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
     
     private class GameBoard extends JPanel implements ComponentListener, MouseListener, MouseMotionListener, Runnable {
         private Dimension d_gameBoardSize = null;
-        private ArrayList<Point> point = new ArrayList<Point>(0);
+        //private ArrayList<Point> point = new ArrayList<Point>(0);
+        private CopyOnWriteArrayList<Point> point = new CopyOnWriteArrayList<>();
         
         public GameBoard() {
             // Add resizing listener
