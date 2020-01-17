@@ -303,26 +303,23 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
 
         @Override
         public void run() {
-            while (true) {
-                try {
-                    Thread.sleep(1000 / i_movesPerSecond);
-                    // run();
-                } catch (InterruptedException ex) {
-                    return;
-                }
-
+            int counter = 0;
+            long startTime = System.nanoTime();
+            while (counter < 100000) {
                 runOnce();
-
+                counter++;
             }
+            long stopTime = System.nanoTime();
+            System.out.println("Execution time: " + (stopTime - startTime));
+            System.exit(0);
 
         }
 
         private void runOnce() {
             boolean[][] gameBoard = new boolean[d_gameBoardSize.width + 2][d_gameBoardSize.height + 2];
 
-            
             for (Point current : point) {
-                if (current.x + 1 < d_gameBoardSize.width + 2 &&  current.y + 1 < d_gameBoardSize.height + 2){
+                if (current.x + 1 < d_gameBoardSize.width + 2 && current.y + 1 < d_gameBoardSize.height + 2) {
                     gameBoard[current.x + 1][current.y + 1] = true;
                 }
             }
