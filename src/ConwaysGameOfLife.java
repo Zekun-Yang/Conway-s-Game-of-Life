@@ -303,17 +303,15 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
 
         @Override
         public void run() {
-            while (true) {
-                try {
-                    Thread.sleep(1000 / i_movesPerSecond);
-                    // run();
-                } catch (InterruptedException ex) {
-                    return;
-                }
-
+            int counter = 0;
+            long start = System.nanoTime();
+            while (counter < 100000) {
                 runOnce();
-
+                counter++;
             }
+            long end = System.nanoTime();
+            System.out.println("Time: " + (end - start));
+            System.exit(0);
 
         }
 
