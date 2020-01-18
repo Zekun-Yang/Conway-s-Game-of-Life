@@ -339,27 +339,26 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
             for (int i = 1; i < gameBoard.length - 1; i++) {
                 executor.submit(new BladeRunner(i, gameBoard, survivingCells, latch));
             }
-           
 
             resetBoard();
             try {
                 latch.await();
             } catch (InterruptedException e) {
-                
+
             }
-            
+
             point.addAll(survivingCells);
             repaint();
-            
+
         }
 
-        private class BladeRunner implements Runnable{
+        private class BladeRunner implements Runnable {
             private int conlumNum;
             private boolean[][] gameBoard;
             private List<Point> survivingCells;
             private CountDownLatch latch;
 
-            public BladeRunner(int conlumNum, boolean[][] gameBoard, List<Point> survivingCells, CountDownLatch latch){
+            public BladeRunner(int conlumNum, boolean[][] gameBoard, List<Point> survivingCells, CountDownLatch latch) {
                 this.conlumNum = conlumNum;
                 this.gameBoard = gameBoard;
                 this.survivingCells = survivingCells;
@@ -368,6 +367,8 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
 
             @Override
             public void run() {
+                ArrayList<Point> temp = new ArrayList<>(0);
+
                 for (int j = 1; j < gameBoard[0].length - 1; j++) {
                     int surrounding = 0;
                     if (gameBoard[conlumNum - 1][j - 1]) {
@@ -397,24 +398,22 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
                     if (gameBoard[conlumNum][j]) {
                         // Cell is alive, Can the cell live? (2-3)
                         if ((surrounding == 2) || (surrounding == 3)) {
-                            synchronized(survivingCells){
-                                survivingCells.add(new Point(conlumNum - 1, j - 1));
-                            }
+                            temp.add(new Point(conlumNum - 1, j - 1));
                         }
                     } else {
                         // Cell is dead, will the cell be given birth? (3)
                         if (surrounding == 3) {
-                            synchronized(survivingCells){
-                                survivingCells.add(new Point(conlumNum - 1, j - 1));
-                            }
+                            temp.add(new Point(conlumNum - 1, j - 1));
                         }
                     }
                 }
+                synchronized(survivingCells){
+                    survivingCells.addAll(temp);
+                }
                 latch.countDown();
             }
-    
+
         }
     }
 
-    
 }
