@@ -319,8 +319,8 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
             }
             long stopTime = System.nanoTime();
             System.out.println("Execution time: " + (stopTime - startTime));
+            executor.shutdown();
             System.exit(0);
-
         }
 
         private void oneCycle() {
@@ -344,7 +344,7 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
             try {
                 latch.await();
             } catch (InterruptedException e) {
-
+                return;
             }
 
             point.addAll(survivingCells);
@@ -407,6 +407,7 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
                         }
                     }
                 }
+                
                 synchronized(survivingCells){
                     survivingCells.addAll(temp);
                 }
