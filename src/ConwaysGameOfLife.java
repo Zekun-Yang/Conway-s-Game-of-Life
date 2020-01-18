@@ -2,8 +2,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -174,6 +180,8 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
         // private ArrayList<Point> point = new ArrayList<Point>(0);
         private CopyOnWriteArrayList<Point> point = new CopyOnWriteArrayList<>();
 
+        private ExecutorService executor = Executors.newFixedThreadPool(4);
+
         public GameBoard() {
             // Add resizing listener
             addComponentListener(this);
@@ -306,7 +314,7 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
             int counter = 0;
             long startTime = System.nanoTime();
             while (counter < 100000) {
-                runOnce();
+                oneCycle();
                 counter++;
             }
             long stopTime = System.nanoTime();
@@ -315,7 +323,9 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
 
         }
 
-        private void runOnce() {
+        private void oneCycle() {
+            CountDownLatch latch = new CountDownLatch(d_gameBoardSize.width);
+
             boolean[][] gameBoard = new boolean[d_gameBoardSize.width + 2][d_gameBoardSize.height + 2];
 
             for (Point current : point) {
@@ -324,51 +334,87 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
                 }
             }
 
-            ArrayList<Point> survivingCells = new ArrayList<Point>(0);
+            List<Point> survivingCells = Collections.synchronizedList(new ArrayList<Point>());
             // Iterate through the array, follow game of life rules
             for (int i = 1; i < gameBoard.length - 1; i++) {
+                executor.submit(new BladeRunner(i, gameBoard, survivingCells, latch));
+            }
+           
+
+            resetBoard();
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                
+            }
+            
+            point.addAll(survivingCells);
+            repaint();
+            
+        }
+
+        private class BladeRunner implements Runnable{
+            private int conlumNum;
+            private boolean[][] gameBoard;
+            private List<Point> survivingCells;
+            private CountDownLatch latch;
+
+            public BladeRunner(int conlumNum, boolean[][] gameBoard, List<Point> survivingCells, CountDownLatch latch){
+                this.conlumNum = conlumNum;
+                this.gameBoard = gameBoard;
+                this.survivingCells = survivingCells;
+                this.latch = latch;
+            }
+
+            @Override
+            public void run() {
                 for (int j = 1; j < gameBoard[0].length - 1; j++) {
                     int surrounding = 0;
-                    if (gameBoard[i - 1][j - 1]) {
+                    if (gameBoard[conlumNum - 1][j - 1]) {
                         surrounding++;
                     }
-                    if (gameBoard[i - 1][j]) {
+                    if (gameBoard[conlumNum - 1][j]) {
                         surrounding++;
                     }
-                    if (gameBoard[i - 1][j + 1]) {
+                    if (gameBoard[conlumNum - 1][j + 1]) {
                         surrounding++;
                     }
-                    if (gameBoard[i][j - 1]) {
+                    if (gameBoard[conlumNum][j - 1]) {
                         surrounding++;
                     }
-                    if (gameBoard[i][j + 1]) {
+                    if (gameBoard[conlumNum][j + 1]) {
                         surrounding++;
                     }
-                    if (gameBoard[i + 1][j - 1]) {
+                    if (gameBoard[conlumNum + 1][j - 1]) {
                         surrounding++;
                     }
-                    if (gameBoard[i + 1][j]) {
+                    if (gameBoard[conlumNum + 1][j]) {
                         surrounding++;
                     }
-                    if (gameBoard[i + 1][j + 1]) {
+                    if (gameBoard[conlumNum + 1][j + 1]) {
                         surrounding++;
                     }
-                    if (gameBoard[i][j]) {
+                    if (gameBoard[conlumNum][j]) {
                         // Cell is alive, Can the cell live? (2-3)
                         if ((surrounding == 2) || (surrounding == 3)) {
-                            survivingCells.add(new Point(i - 1, j - 1));
+                            synchronized(survivingCells){
+                                survivingCells.add(new Point(conlumNum - 1, j - 1));
+                            }
                         }
                     } else {
                         // Cell is dead, will the cell be given birth? (3)
                         if (surrounding == 3) {
-                            survivingCells.add(new Point(i - 1, j - 1));
+                            synchronized(survivingCells){
+                                survivingCells.add(new Point(conlumNum - 1, j - 1));
+                            }
                         }
                     }
                 }
+                latch.countDown();
             }
-            resetBoard();
-            point.addAll(survivingCells);
-            repaint();
+    
         }
     }
+
+    
 }
