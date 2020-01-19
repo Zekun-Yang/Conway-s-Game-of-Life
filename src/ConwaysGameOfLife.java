@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 
@@ -310,7 +311,7 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
                 counter++;
             }
             long end = System.nanoTime();
-            System.out.println("Time: " + (end - start));
+            System.out.println("Time: " + TimeUnit.NANOSECONDS.toMillis(end - start));
             System.exit(0);
 
         }
