@@ -9,6 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 import javax.swing.*;
@@ -318,7 +319,7 @@ public class ConwaysGameOfLife extends JFrame implements ActionListener {
                 counter++;
             }
             long stopTime = System.nanoTime();
-            System.out.println("Execution time: " + (stopTime - startTime));
+            System.out.println("Execution time: " + TimeUnit.NANOSECONDS.toMillis(stopTime - startTime));
             executor.shutdown();
             System.exit(0);
         }
